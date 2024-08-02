@@ -3,6 +3,7 @@ import * as path from "path";
 import dotenv from "dotenv";
 import express,{Request,Response,NextFunction} from "express";
 
+import { identificationRoute } from "./src/routes";
 import { ErrorResponse } from "./src/interfaces";
 
 dotenv.config();
@@ -23,6 +24,19 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     );
     next();
 });
+
+
+
+// handle requests
+
+app.use("/identify", identificationRoute);
+
+app.use("/", (req: Request, res: Response, next: NextFunction) => {
+    const err = new Error("BAD REQUEST : invalid endpoint url => " + req.url) as ErrorResponse;
+    err.status = 400;
+    throw err;
+});
+
 
 
 // Error Handling
