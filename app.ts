@@ -1,7 +1,7 @@
 import * as path from "path";
 
-import 'dotenv/config';
-import express,{Request,Response,NextFunction} from "express";
+import "dotenv/config";
+import express, { Request, Response, NextFunction } from "express";
 
 import { identificationRoute } from "./src/routes";
 import { ErrorResponse } from "./src/interfaces";
@@ -24,22 +24,21 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-
-
 // handle requests
 
 app.use("/identify", identificationRoute);
 
 app.use("/", (req: Request, res: Response, next: NextFunction) => {
-    const err = new Error("BAD REQUEST : invalid endpoint url => " + req.url) as ErrorResponse;
+    const err = new Error(
+        "BAD REQUEST : invalid endpoint url => " + req.url
+    ) as ErrorResponse;
     err.status = 400;
     throw err;
 });
 
-
-
 // Error Handling
-app.use((err: ErrorResponse, req: Request, res: Response, next: NextFunction) => {
+app.use(
+    (err: ErrorResponse, req: Request, res: Response, next: NextFunction) => {
         console.log(`\x1b[41m\x1b[1m\x1b[97m `, err.stack, `\x1b[0m`);
         err.message = err.status ? err.message : "Some server error occured.";
         res.status(err.status || 500).json({
@@ -53,17 +52,16 @@ app.use((err: ErrorResponse, req: Request, res: Response, next: NextFunction) =>
 
 // connect to DB and spin server
 const startServer = async () => {
-    try{
+    try {
         await rdsConnection.authenticate();
         console.log("connected to database");
         let port = process.env.PORT || "5000";
         app.listen(port, () => {
             console.log(`Server up at ${port}`);
         });
-    }catch(err){
+    } catch (err) {
         console.error("some error occured", err);
     }
-}
-
+};
 
 startServer();
