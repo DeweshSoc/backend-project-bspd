@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-import { pushContactEntry } from "../models";
+import { pushContactEntry, findSecondaryContactsByPrimary, updateToSecondary } from "../models";
 import { Request, Response, NextFunction } from "express";
 import { validateRequest, checkContactExistence } from "../services";
 
@@ -27,24 +27,43 @@ export const contactController = async (
                 if (primaryByEmail.dataValues.id === primaryByPhoneNumber.dataValues.id) {
                     // both contacts are same
 
-                    // createPayload(primaryByEmail);
-                    // send responce
+                    const payload = await consolidateContacts(primaryByEmail);
+                    res.status(200).json(JSON.stringify(payload));
+
                 } else {
                     // both are different primary contacts
-
-                    // make primaryByNumber secondary and generate payload based on primaryByEmail
-                    // send response
+                    // make primaryByNumber as secondary and generate payload based on primaryByEmail
+                    
+                    await updateToSecondary(primaryByEmail.dataValues.id,primaryByPhoneNumber);
+                    const payload = await consolidateContacts(primaryByEmail);
+                    res.status(200).json(JSON.stringify(payload));
                 }
             } else if (primaryByEmail) {
                 //  if there exists primary contact by email only
+                // make new entry, make it secondary. generate payload on basis of primaryByemail
 
-                // make new entry with new phonenumber and make it secondary to primaryByMail
-                // generate payload based on primaryByMail
+                const newEntry = {
+                    email,
+                    phoneNumber,
+                    linkedId: primaryByEmail.dataValues.id,
+                    linkPrecedence : 'secondary'
+                }
+                await pushContactEntry(newEntry);
+                const payload = await consolidateContacts(primaryByEmail);
+                res.status(200).json(JSON.stringify(payload));
             } else if (primaryByPhoneNumber) {
                 //  if there exists primary contact by pnumber only
+                // make new entry, make it secondary. generate payload on basis of primaryByPhoneNumber 
 
-                // make new entry with new email and make it secondary to primaryByNumber
-                // generate payload based on primaryByNumber
+                const newEntry = {
+                    email,
+                    phoneNumber,
+                    linkedId: primaryByPhoneNumber.dataValues.id,
+                    linkPrecedence: "secondary",
+                };
+                await pushContactEntry(newEntry);
+                const payload = await consolidateContacts(primaryByPhoneNumber);
+                res.status(200).json(JSON.stringify(payload));
             }
         } else {
             // there is no primary id for given request. Hence this request leads to a new primary id.
@@ -56,8 +75,8 @@ export const contactController = async (
                 linkPrecedence: "primary",
             };
             const savedEntry = await pushContactEntry(newEntry);
-            console.log(savedEntry);
-            // createPayload(savedEntry) -> after all new additions, this is called. it take the primary contact
+            const payload = await consolidateContacts(savedEntry);
+            res.status(200).json(JSON.stringify(payload));
         }
     } catch (err) {
         next(err);
@@ -65,6 +84,23 @@ export const contactController = async (
 };
 
 
-const consolidateContacts = async (primaryContact : Promise<Model<any,any>>) => {
-    
-}
+const consolidateContacts = async (primaryContact : Model<any,any>) => {
+    try{
+        const secondaryContacts = await findSecondaryContactsByPrimary(primaryContact.dataValues.id);
+        const emails = [primaryContact.dataValues.email , ...secondaryContacts.filter(contact => contact.dataValues.email!== null)];
+        const phoneNumbers = [primaryContact.dataValues.phoneNumber , ...secondaryContacts.filter(contact => contact.dataValues.phoneNumber!== null)];
+        const secondaryContactIds = secondaryContacts.map(contact => contact.dataValues.id);
+
+        return {
+            contact:{
+                primaryContactId : primaryContact.dataValues.id,
+                emails,
+                phoneNumbers,
+                secondaryContactIds
+            }
+        }
+
+    }catch(err){
+        throw err;
+    }
+}   
