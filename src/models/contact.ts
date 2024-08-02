@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import connection from "../../connection";
 
 export const Contact = connection.define(
@@ -27,8 +27,7 @@ export const Contact = connection.define(
     }
 );
 
-
-import { Optional } from "sequelize";
+Contact.sync();
 
 export const pushContactEntry = async (entryData: Optional<any, string>) => {
     try {
