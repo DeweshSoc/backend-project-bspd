@@ -83,3 +83,17 @@ export const findSecondaryContactsByPrimary = async(primaryId : Number) : Promis
     }
 }
 
+export const updateToSecondary = async(primaryId:Number, contact : Model<any,any>) : Promise<Model<any,any>> => {
+    try{
+
+        contact.set({
+            linkedId : primaryId,
+            linkedPrecedence : 'secondary'
+        })
+
+        return await contact.save();
+
+    }catch(err){
+        throw(err)
+    }
+}
