@@ -1,7 +1,8 @@
-import isEmail from "validator/lib/isEmail";
+import { Model } from "sequelize";
 
+import { pushContactEntry } from "../models";
 import { Request, Response, NextFunction } from "express";
-import { ErrorResponse } from "../interfaces";
+import { validateRequest, checkContactExistence } from "../services";
 
 export const contactController = async (
     req: Request,
@@ -10,41 +11,60 @@ export const contactController = async (
 ) => {
     try {
         const { email, phoneNumber } = validateRequest(req.body);
+
+        const {
+            check: checkprimary,
+            primaryByEmail,
+            primaryByPhoneNumber,
+        } = await checkContactExistence(email, phoneNumber);
+
+        if (checkprimary) {
+            // based on email/pnumber there exists one or more primary contact
+
+            if (primaryByEmail && primaryByPhoneNumber) {
+                // if there exists primary contact by both email and number
+                
+                if (primaryByEmail.dataValues.id === primaryByPhoneNumber.dataValues.id) {
+                    // both contacts are same
+
+                    // createPayload(primaryByEmail);
+                    // send responce
+                } else {
+                    // both are different primary contacts
+
+                    // make primaryByNumber secondary and generate payload based on primaryByEmail
+                    // send response
+                }
+            } else if (primaryByEmail) {
+                //  if there exists primary contact by email only
+
+                // make new entry with new phonenumber and make it secondary to primaryByMail
+                // generate payload based on primaryByMail
+            } else if (primaryByPhoneNumber) {
+                //  if there exists primary contact by pnumber only
+
+                // make new entry with new email and make it secondary to primaryByNumber
+                // generate payload based on primaryByNumber
+            }
+        } else {
+            // there is no primary id for given request. Hence this request leads to a new primary id.
+
+            const newEntry = {
+                email,
+                phoneNumber,
+                linkedId: null,
+                linkPrecedence: "primary",
+            };
+            const savedEntry = await pushContactEntry(newEntry);
+            console.log(savedEntry);
+            // createPayload(savedEntry) -> after all new additions, this is called. it take the primary contact
+        }
     } catch (err) {
         next(err);
     }
 };
 
-const validateRequest = (body: Record<string, any>) => {
-    const { email, phoneNumber } = body;
 
-    if (!email && !phoneNumber) {
-        const err = new Error(
-            "Missing parameters : email or phoneNumber"
-        ) as ErrorResponse;
-        err.status = 422;
-        throw err;
-    }
-
-    if (email && !isEmail(email)) {
-        const err = new Error("Invalid Email") as ErrorResponse;
-        err.status = 422;
-        throw err;
-    }
-
-    if (phoneNumber && !isPhoneNumber(phoneNumber)) {
-        const err = new Error("Invalid Phone Number") as ErrorResponse;
-        err.status = 422;
-        throw err;
-    }
-
-    return { email, phoneNumber };
-};
-
-const isPhoneNumber = (phoneNumber: String) => {
-    const allowed = "+0123456789".split("");
-    for (let digit of phoneNumber) {
-        if (!allowed.includes(digit)) return false;
-    }
-    return true;
-};
+const consolidateContacts = async (primaryContact : Promise<Model<any,any>>) => {
+    
+}
