@@ -11,6 +11,11 @@ if (!host || !username || !password) {
     throw Error("connection attempt failed: missing parameters");
 }
 
-const connection = new Sequelize("", username, password, { host, port, dialect });
+const connection = new Sequelize("", username, password, { 
+    host, 
+    port, 
+    dialect,
+    pool:{idle:30, max:5}
+});
 
 export default connection;
