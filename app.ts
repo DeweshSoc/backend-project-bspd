@@ -3,6 +3,8 @@ import * as path from "path";
 import dotenv from "dotenv";
 import express,{Request,Response,NextFunction} from "express";
 
+import { ErrorResponse } from "./src/interfaces";
+
 dotenv.config();
 
 const app = express();
@@ -21,6 +23,20 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     );
     next();
 });
+
+
+// Error Handling
+app.use((err: ErrorResponse, req: Request, res: Response, next: NextFunction) => {
+        console.log(`\x1b[41m\x1b[1m\x1b[97m `, err.stack, `\x1b[0m`);
+        err.message = err.status ? err.message : "Some server error occured.";
+        res.status(err.status || 500).json({
+            error: {
+                status: err.status,
+                message: err.message,
+            },
+        });
+    }
+);
 
 
 let port = process.env.PORT;
