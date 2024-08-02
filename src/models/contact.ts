@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import connection from "../../connection";
 
-const Contact = connection.define(
+export const Contact = connection.define(
     "Contact",
     {
         id: {
@@ -28,4 +28,3 @@ const Contact = connection.define(
     }
 );
 
-export default Contact;
