@@ -14,17 +14,15 @@ export const Contact = connection.define(
 
         phoneNumber: DataTypes.STRING,
 
-        linkedId:  DataTypes.INTEGER,
+        linkedId: DataTypes.INTEGER,
 
         linkPrecedence: {
             type: DataTypes.ENUM("primary", "secondary"),
             allowNull: false,
         },
-
     },
     {
         timestamps: true, // for createdAt, updatedAt
-        paranoid: true, // Calling destroy will not delete the model, but instead set a deletedAt timestamp 
+        paranoid: true, // Calling destroy will not delete the model, but instead set a deletedAt timestamp
     }
 );
-
