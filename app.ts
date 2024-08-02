@@ -1,12 +1,11 @@
 import * as path from "path";
 
-import dotenv from "dotenv";
+import 'dotenv/config';
 import express,{Request,Response,NextFunction} from "express";
 
 import { identificationRoute } from "./src/routes";
 import { ErrorResponse } from "./src/interfaces";
-
-dotenv.config();
+import rdsConnection from "./connection";
 
 const app = express();
 
@@ -52,12 +51,19 @@ app.use((err: ErrorResponse, req: Request, res: Response, next: NextFunction) =>
     }
 );
 
-
-let port = process.env.PORT;
-if (port == null || port == "") {
-    port = "5000";
+// connect to DB and spin server
+const startServer = async () => {
+    try{
+        await rdsConnection.authenticate();
+        console.log("connected to database");
+        let port = process.env.PORT || "5000";
+        app.listen(port, () => {
+            console.log(`Server up at ${port}`);
+        });
+    }catch(err){
+        console.error("some error occured", err);
+    }
 }
 
-app.listen(port, () => {
-    console.log(`Server up at ${port}`);
-});
+
+startServer();
