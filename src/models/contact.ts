@@ -66,3 +66,20 @@ export const findOneByPhoneNumber = async( phoneNumber : string) : Promise<Model
         throw err;
     }
 }
+
+export const findSecondaryContactsByPrimary = async(primaryId : Number) : Promise<Model<any,any>[]> => {
+    try{
+        const contacts = await Contact.findAll({
+            attributes:['id','email','phoneNumber'],
+            where:{
+                linkedId : primaryId,
+                linkPrecedence :"secondary"
+            }
+        })
+        console.log(contacts);
+        return contacts;
+    }catch(err){
+        throw err;
+    }
+}
+
