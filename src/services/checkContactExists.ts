@@ -1,11 +1,11 @@
 import { Model } from "sequelize";
 
-import { Contact } from "../models";
+import { Contact, findOneByEmail, findOneByPhoneNumber } from "../models";
 
 interface ICheckContactExisence {
     check: Boolean;
-    byEmail: Model<any, any> | null;
-    byPhoneNumber: Model<any, any> | null;
+    primaryByEmail: Model<any, any> | null;
+    primaryByPhoneNumber: Model<any, any> | null;
 }
 
 export const checkContactExistence = async (
@@ -13,29 +13,15 @@ export const checkContactExistence = async (
     phoneNumber: string | null
 ): Promise<ICheckContactExisence> => {
     try {
-        const findOneByEmail = email
-            ? await Contact.findOne({
-                  where: {
-                      email,
-                      linkPrecedence: "primary",
-                  },
-              })
-            : null;
-
-        const findOneByPhoneNumber = phoneNumber
-            ? await Contact.findOne({
-                  where: {
-                      phoneNumber,
-                      linkPrecedence: "primary",
-                  },
-              })
-            : null;
+        const contactByEmail = email ? await findOneByEmail(email) : null;
+        const contactByPhoneNumber = phoneNumber ? await findOneByPhoneNumber(phoneNumber) : null;
 
         return {
-            check: !!(findOneByEmail || findOneByPhoneNumber),
-            byEmail: findOneByEmail,
-            byPhoneNumber: findOneByPhoneNumber,
+            check: !!(contactByEmail || contactByPhoneNumber),
+            primaryByEmail: contactByEmail,
+            primaryByPhoneNumber: contactByPhoneNumber,
         };
+
     } catch (err) {
         throw err;
     }
