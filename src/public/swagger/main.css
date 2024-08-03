@@ -1,0 +1,42 @@
+h1,h2,h3,h4,h5,h6,p,pre,button,a,td,div{
+    color: #fff !important;
+}
+
+body{
+    background-color: #151515;
+}
+
+.swagger-ui select{
+    background-color: #151515;
+    border: none;
+    border-bottom: 2px solid #7ae2a0;
+    color: #fff !important;
+    outline: none;
+}
+.swagger-ui .topbar{
+    display:none;
+}
+.swagger-ui .scheme-container{
+    background-color:  #151515;
+}
+.swagger-ui .info .title small.version-stamp {
+    background-color: #7AE2A0;
+}
+
+.swagger-ui .opblock-tag{
+    border-bottom: 1px solid #7AE2A0;
+}
+.swagger-ui .opblock.opblock-get{
+    border:none
+}
+.swagger-ui .opblock.opblock-post{
+    border:none
+}
+
+.swagger-ui .expand-methods svg, .swagger-ui .expand-operation svg{
+    fill: #7AE2A0;
+}
+
+.swagger-ui .opblock .opblock-section-header{
+    background: none;
+}

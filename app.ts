@@ -2,10 +2,14 @@ import * as path from "path";
 
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
+import * as swaggerUI from "swagger-ui-express";
+import * as swaggerDoc from "./src/json/swagger.json";
 
 import { identificationRoute } from "./src/routes";
 import { ErrorResponse } from "./src/interfaces";
 import rdsConnection from "./connection";
+
+
 
 const app = express();
 
@@ -24,9 +28,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
+
+// documentation route middleware
+const swaggerOptions:swaggerUI.SwaggerUiOptions = { 
+  customCssUrl: '/swagger/main.css',
+  customSiteTitle: "Dewesh Jha - BE task",
+  customfavIcon: "/swagger/assets/images/favicon/favicon.ico" 
+};
+
+
+
+
 // handle requests
 
 app.use("/identify", identificationRoute);
+
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc,swaggerOptions));
+
 
 app.use("/", (req: Request, res: Response, next: NextFunction) => {
     const err = new Error(
@@ -35,6 +54,9 @@ app.use("/", (req: Request, res: Response, next: NextFunction) => {
     err.status = 400;
     throw err;
 });
+
+
+
 
 // Error Handling
 app.use(
@@ -49,6 +71,9 @@ app.use(
         });
     }
 );
+
+
+
 
 // connect to DB and spin server
 const startServer = async () => {

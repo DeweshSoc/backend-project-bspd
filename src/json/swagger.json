@@ -1,0 +1,130 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "Web service to consolidate multiple contacts and keep track of customer's identity accross multiple purchases",
+        "version": "1.0.0",
+        "title": "Bitespeed BE Task - Identity Reconciliation - Dewesh Jha",
+        "contact": {
+            "name": "Dewesh Jha",
+            "url": "https://www.linkedin.com/in/dewesh-jha/",
+            "email": "deweshjha4@gmail.com"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://lc-tcg.onrender.com/",
+            "description": "remote server"
+        },
+        { "url": "http://localhost:5000", "description": "Local server" }
+    ],
+    "tags": [
+        {
+            "name": "Identify",
+            "description": "Consolidate contacts based on a primary contact"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "identityRequestBody": {
+                "type": "object",
+                "properties": {
+                    "email": { "type": "string" },
+                    "phoneNumber": {"type" : "string"}
+                }
+            },
+            "identityResponsePayload": {
+                "type": "object",
+                "properties": {
+                    "contact": {
+                        "type": "object",
+                        "properties": {
+                            "primaryContactId": {
+                                "type":"number"
+                            },
+                            "emails": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "phoneNumber": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "secondaryContactIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "generalError": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "number"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/identify": {
+            "post": {
+                "tags": ["Identify"],
+                "summary": "Given an email and/or phoneNumber, get the consolidated data of contacts",
+                "description": "The endpoint returns a consolidated response based on email and/or phone number by getting (or creating) the primary contact and on basis of that getting (or creating) the secondary contacts",
+                "requestBody": {
+                    "description": "Request to fetch linked data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/identityRequestBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation - returns valid response containing data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/identityResponsePayload"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error - returns error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/generalError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "request syntax is valid, but content is wrong",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/generalError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
