@@ -19,7 +19,7 @@ export const validateRequest = (body: Record<string, any>) : IValidationResponse
         throw err;
     }
 
-    if (typeof email !== "string" || typeof phoneNumber !== "string") {
+    if ((email && typeof email !== "string") || (phoneNumber && typeof phoneNumber !== "string")) {
         const err = new Error("invalid email or phone number") as ErrorResponse;
         err.status = 422;
         throw err;
