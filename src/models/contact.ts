@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Optional, QueryTypes } from "sequelize";
 import connection from "../../connection";
 
 export const Contact = connection.define(
@@ -46,13 +46,21 @@ export const pushContactEntry = async (entryData: Optional<any, string>) => {
 
 export const findOneByEmail = async( email : string) : Promise<Model<any,any> | null> => {
     try{
-        const contact = await Contact.findOne({ 
+        let primaryContact = await Contact.findOne({ 
             where: {
                 email,
                 linkPrecedence: "primary",
             },
         });
-        return contact;
+        if(!primaryContact){
+
+            [primaryContact] = await connection.query(`select p.* from Contacts p INNER JOIN Contacts s ON s.linkedId = p.id where s.email = '${email}'`,{
+                type:QueryTypes.SELECT,
+                model:Contact
+            });
+
+        }
+        return primaryContact;
     }catch(err){
         throw err;
     }
@@ -60,13 +68,21 @@ export const findOneByEmail = async( email : string) : Promise<Model<any,any> | 
 
 export const findOneByPhoneNumber = async( phoneNumber : string) : Promise<Model<any,any> | null> => {
     try{
-        const contact = await Contact.findOne({ 
+       let primaryContact = await Contact.findOne({ 
             where: {
                 phoneNumber,
                 linkPrecedence: "primary",
             },
         });
-        return contact;
+        if(!primaryContact){
+
+            [primaryContact] = await connection.query(`select p.* from Contacts p INNER JOIN Contacts s ON s.linkedId = p.id where s.phoneNumber = '${phoneNumber}'`,{
+                type:QueryTypes.SELECT,
+                model:Contact
+            });
+            
+        }
+        return primaryContact;
     }catch(err){
         throw err;
     }
