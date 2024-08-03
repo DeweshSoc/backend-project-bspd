@@ -31,8 +31,14 @@ Contact.sync();
 
 export const pushContactEntry = async (entryData: Optional<any, string>) => {
     try {
-        const savedContact = await Contact.create(entryData);
-        return savedContact;
+        const dupliacteContact = await Contact.findOne({
+            where: { ...entryData },
+        });
+        if (!dupliacteContact) {
+            const savedContact = await Contact.create(entryData);
+            return savedContact;
+        }
+        return dupliacteContact;
     } catch (err) {
         throw err;
     }
