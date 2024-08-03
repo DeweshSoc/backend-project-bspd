@@ -18,6 +18,7 @@ export const contactController = async (
             primaryByPhoneNumber,
         } = await checkContactExistence(email, phoneNumber);
 
+        
         if (checkprimary) {
             // based on email/pnumber there exists one or more primary contact
 
@@ -25,19 +26,20 @@ export const contactController = async (
                 // if there exists primary contact by both email and number
                 
                 if (primaryByEmail.dataValues.id === primaryByPhoneNumber.dataValues.id) {
-                    // both contacts are same
-
+                    // both contacts are same, then nothing to do just generate payload on basis of any one
+                    
                     const payload = await consolidateContacts(primaryByEmail);
                     res.status(200).json(payload);
 
                 } else {
                     // both are different primary contacts
                     // make primaryByNumber as secondary and generate payload based on primaryByEmail
-                    
+
                     await updateToSecondary(primaryByEmail.dataValues.id,primaryByPhoneNumber);
                     const payload = await consolidateContacts(primaryByEmail);
                     res.status(200).json(payload);
                 }
+
             } else if (primaryByEmail) {
                 //  if there exists primary contact by email only
                 // make new entry, make it secondary. generate payload on basis of primaryByemail
@@ -51,8 +53,10 @@ export const contactController = async (
                     }
                     await pushContactEntry(newEntry);
                 }
+
                 const payload = await consolidateContacts(primaryByEmail);
                 res.status(200).json(payload);
+
             } else if (primaryByPhoneNumber) {
                 //  if there exists primary contact by pnumber only
                 // make new entry, make it secondary. generate payload on basis of primaryByPhoneNumber 
@@ -66,8 +70,10 @@ export const contactController = async (
                     };
                     await pushContactEntry(newEntry);
                 }
+
                 const payload = await consolidateContacts(primaryByPhoneNumber);
                 res.status(200).json(payload);
+
             }
         } else {
             // there is no primary id for given request. Hence this request leads to a new primary id.
@@ -78,9 +84,11 @@ export const contactController = async (
                 linkedId: null,
                 linkPrecedence: "primary",
             };
+
             const savedEntry = await pushContactEntry(newEntry);
             const payload = await consolidateContacts(savedEntry);
             res.status(200).json(payload);
+            
         }
     } catch (err) {
         next(err);
