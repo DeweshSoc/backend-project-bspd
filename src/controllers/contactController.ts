@@ -28,7 +28,7 @@ export const contactController = async (
                     // both contacts are same
 
                     const payload = await consolidateContacts(primaryByEmail);
-                    res.status(200).json(JSON.stringify(payload));
+                    res.status(200).json(payload);
 
                 } else {
                     // both are different primary contacts
@@ -36,7 +36,7 @@ export const contactController = async (
                     
                     await updateToSecondary(primaryByEmail.dataValues.id,primaryByPhoneNumber);
                     const payload = await consolidateContacts(primaryByEmail);
-                    res.status(200).json(JSON.stringify(payload));
+                    res.status(200).json(payload);
                 }
             } else if (primaryByEmail) {
                 //  if there exists primary contact by email only
@@ -50,7 +50,7 @@ export const contactController = async (
                 }
                 await pushContactEntry(newEntry);
                 const payload = await consolidateContacts(primaryByEmail);
-                res.status(200).json(JSON.stringify(payload));
+                res.status(200).json(payload);
             } else if (primaryByPhoneNumber) {
                 //  if there exists primary contact by pnumber only
                 // make new entry, make it secondary. generate payload on basis of primaryByPhoneNumber 
@@ -63,7 +63,7 @@ export const contactController = async (
                 };
                 await pushContactEntry(newEntry);
                 const payload = await consolidateContacts(primaryByPhoneNumber);
-                res.status(200).json(JSON.stringify(payload));
+                res.status(200).json(payload);
             }
         } else {
             // there is no primary id for given request. Hence this request leads to a new primary id.
@@ -76,7 +76,7 @@ export const contactController = async (
             };
             const savedEntry = await pushContactEntry(newEntry);
             const payload = await consolidateContacts(savedEntry);
-            res.status(200).json(JSON.stringify(payload));
+            res.status(200).json(payload);
         }
     } catch (err) {
         next(err);
