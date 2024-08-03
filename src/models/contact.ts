@@ -75,7 +75,6 @@ export const findSecondaryContactsByPrimary = async(primaryId : Number) : Promis
                 linkPrecedence :"secondary"
             }
         })
-        console.log(contacts);
         return contacts;
     }catch(err){
         throw err;
