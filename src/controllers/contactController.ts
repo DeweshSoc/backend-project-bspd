@@ -91,14 +91,24 @@ const consolidateContacts = async (primaryContact : Model<any,any>) => {
         const emails = [
             primaryContact.dataValues.email,
             ...secondaryContacts
-                .filter((contact) => contact.dataValues.email !== null)
+                .filter(
+                    (contact) =>
+                        contact.dataValues.email !== null &&
+                        contact.dataValues.email !==
+                            primaryContact.dataValues.email
+                )
                 .map((contact) => contact.dataValues.email),
         ];
 
         const phoneNumbers = [
             primaryContact.dataValues.phoneNumber,
             ...secondaryContacts
-                .filter((contact) => contact.dataValues.phoneNumber !== null)
+                .filter(
+                    (contact) =>
+                        contact.dataValues.phoneNumber !== null &&
+                        contact.dataValues.phoneNumber !==
+                            primaryContact.dataValues.phoneNumber
+                )
                 .map((contact) => contact.dataValues.phoneNumber),
         ];
 
