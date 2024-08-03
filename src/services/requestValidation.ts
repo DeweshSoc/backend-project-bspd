@@ -8,6 +8,15 @@ interface IValidationResponse{
     phoneNumber : string | null
 }
 
+
+
+
+/**
+ * @description given request body, validates it to have email and phoneNumber 
+ *
+ * @param {Record<string, any>} body
+ * @returns {IValidationResponse}
+ */
 export const validateRequest = (body: Record<string, any>) : IValidationResponse=> {
     const { email, phoneNumber } = body;
 

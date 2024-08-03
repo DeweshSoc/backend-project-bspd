@@ -1,6 +1,12 @@
 import { DataTypes, Model, Optional, QueryTypes } from "sequelize";
 import connection from "../../connection";
 
+
+
+/**
+ * @description Contact Model
+ */
+
 export const Contact = connection.define(
     "Contact",
     {
@@ -29,7 +35,17 @@ export const Contact = connection.define(
 
 Contact.sync();
 
-export const pushContactEntry = async (entryData: Optional<any, string>) => {
+
+
+
+/**
+ * @description Given entry data, make an entry in Contact model
+ *
+ * @async
+ * @param {Optional<any, string>} entryData
+ * @returns {promise<Model<any,any>>}
+ */
+export const pushContactEntry = async (entryData: Optional<any, string>) : Promise<Model<any,any>> => {
     try {
         const dupliacteContact = await Contact.findOne({
             where: { ...entryData },
@@ -44,6 +60,17 @@ export const pushContactEntry = async (entryData: Optional<any, string>) => {
     }
 };
 
+
+
+
+
+/**
+ * @description Given an email, find the primary contact that is associated with it.
+ *
+ * @async
+ * @param {string} email
+ * @returns {(Promise<Model<any,any> | null>)}
+ */
 export const findOneByEmail = async( email : string) : Promise<Model<any,any> | null> => {
     try{
         let primaryContact = await Contact.findOne({ 
@@ -66,6 +93,16 @@ export const findOneByEmail = async( email : string) : Promise<Model<any,any> | 
     }
 }
 
+
+
+
+/**
+ * @description Given the phoneNumber find the primary contact associated with it
+ *
+ * @async
+ * @param {string} phoneNumber
+ * @returns {(Promise<Model<any,any> | null>)}
+ */
 export const findOneByPhoneNumber = async( phoneNumber : string) : Promise<Model<any,any> | null> => {
     try{
        let primaryContact = await Contact.findOne({ 
@@ -88,6 +125,17 @@ export const findOneByPhoneNumber = async( phoneNumber : string) : Promise<Model
     }
 }
 
+
+
+
+
+/**
+ * @description Given the primary contact id, find all secondary contacts 
+ *
+ * @async
+ * @param {Number} primaryId
+ * @returns {Promise<Model<any,any>[]>}
+ */
 export const findSecondaryContactsByPrimary = async(primaryId : Number) : Promise<Model<any,any>[]> => {
     try{
         const contacts = await Contact.findAll({
@@ -103,6 +151,18 @@ export const findSecondaryContactsByPrimary = async(primaryId : Number) : Promis
     }
 }
 
+
+
+
+
+
+/**
+ * @description Given the primary contact id and a contact, make the contact secondary to the given primary id
+ *
+ * @async
+ * @param {Number} primaryId
+ * @param {Model<any,any>} contact
+ */
 export const updateToSecondary = async(primaryId:Number, contact : Model<any,any>) => {
     try{
         await Contact.update(

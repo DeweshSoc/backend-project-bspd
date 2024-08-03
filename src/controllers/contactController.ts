@@ -4,6 +4,27 @@ import { pushContactEntry, findSecondaryContactsByPrimary, updateToSecondary } f
 import { Request, Response, NextFunction } from "express";
 import { validateRequest, checkContactExistence } from "../services";
 
+
+
+interface IIdentityReconciliation {
+    contact: {
+        primaryContactId: Number;
+        emails:string[];
+        phoneNumbers:string[];
+        secondaryContactIds:Number[];
+    };
+}
+
+
+/**
+ * Controller for Contact model
+ *
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * 
+ */
 export const contactController = async (
     req: Request,
     res: Response,
@@ -29,7 +50,7 @@ export const contactController = async (
                     // both contacts are same, then nothing to do just generate payload on basis of any one
                     
                     const payload = await consolidateContacts(primaryByEmail);
-                    res.status(200).json(payload);
+                    return res.status(200).json(payload);
 
                 } else {
                     // both are different primary contacts
@@ -37,7 +58,7 @@ export const contactController = async (
 
                     await updateToSecondary(primaryByEmail.dataValues.id,primaryByPhoneNumber);
                     const payload = await consolidateContacts(primaryByEmail);
-                    res.status(200).json(payload);
+                    return res.status(200).json(payload);
                 }
 
             } else if (primaryByEmail) {
@@ -55,7 +76,7 @@ export const contactController = async (
                 }
 
                 const payload = await consolidateContacts(primaryByEmail);
-                res.status(200).json(payload);
+                return res.status(200).json(payload);
 
             } else if (primaryByPhoneNumber) {
                 //  if there exists primary contact by pnumber only
@@ -72,7 +93,7 @@ export const contactController = async (
                 }
 
                 const payload = await consolidateContacts(primaryByPhoneNumber);
-                res.status(200).json(payload);
+                return res.status(200).json(payload);
 
             }
         } else {
@@ -87,7 +108,7 @@ export const contactController = async (
 
             const savedEntry = await pushContactEntry(newEntry);
             const payload = await consolidateContacts(savedEntry);
-            res.status(200).json(payload);
+            return res.status(200).json(payload);
             
         }
     } catch (err) {
@@ -96,7 +117,18 @@ export const contactController = async (
 };
 
 
-const consolidateContacts = async (primaryContact : Model<any,any>) => {
+
+
+
+
+/**
+ * @description Given a primary contact, gather all secondary contacts' emails, phoneNumbers, ids
+ * @async
+ * @param {Model<any,any>} primaryContact
+ * @returns {Promise<IIdentityReconciliation>}
+ */
+
+const consolidateContacts = async (primaryContact : Model<any,any>) : Promise<IIdentityReconciliation> => {
     try{
         const secondaryContacts = await findSecondaryContactsByPrimary(primaryContact.dataValues.id);
         

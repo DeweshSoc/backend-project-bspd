@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-import { Contact, findOneByEmail, findOneByPhoneNumber } from "../models";
+import { findOneByEmail, findOneByPhoneNumber } from "../models";
 
 interface ICheckContactExisence {
     check: Boolean;
@@ -8,10 +8,22 @@ interface ICheckContactExisence {
     primaryByPhoneNumber: Model<any, any> | null;
 }
 
+
+
+
+/**
+ * @description given email and phoneNumber, checks existence and returns the primaryContacts based on those
+ *
+ * @async
+ * @param {(string | null)} email
+ * @param {(string | null)} phoneNumber
+ * @returns {Promise<ICheckContactExisence>}
+ */
 export const checkContactExistence = async (
     email: string | null,
     phoneNumber: string | null
 ): Promise<ICheckContactExisence> => {
+
     try {
         const contactByEmail = email ? await findOneByEmail(email) : null;
         const contactByPhoneNumber = phoneNumber ? await findOneByPhoneNumber(phoneNumber) : null;
@@ -25,4 +37,5 @@ export const checkContactExistence = async (
     } catch (err) {
         throw err;
     }
+    
 };
