@@ -42,26 +42,30 @@ export const contactController = async (
                 //  if there exists primary contact by email only
                 // make new entry, make it secondary. generate payload on basis of primaryByemail
 
-                const newEntry = {
-                    email,
-                    phoneNumber,
-                    linkedId: primaryByEmail.dataValues.id,
-                    linkPrecedence : 'secondary'
+                if(phoneNumber){
+                    const newEntry = {
+                        email,
+                        phoneNumber,
+                        linkedId: primaryByEmail.dataValues.id,
+                        linkPrecedence : 'secondary'
+                    }
+                    await pushContactEntry(newEntry);
                 }
-                await pushContactEntry(newEntry);
                 const payload = await consolidateContacts(primaryByEmail);
                 res.status(200).json(payload);
             } else if (primaryByPhoneNumber) {
                 //  if there exists primary contact by pnumber only
                 // make new entry, make it secondary. generate payload on basis of primaryByPhoneNumber 
 
-                const newEntry = {
-                    email,
-                    phoneNumber,
-                    linkedId: primaryByPhoneNumber.dataValues.id,
-                    linkPrecedence: "secondary",
-                };
-                await pushContactEntry(newEntry);
+                if(email){
+                    const newEntry = {
+                        email,
+                        phoneNumber,
+                        linkedId: primaryByPhoneNumber.dataValues.id,
+                        linkPrecedence: "secondary",
+                    };
+                    await pushContactEntry(newEntry);
+                }
                 const payload = await consolidateContacts(primaryByPhoneNumber);
                 res.status(200).json(payload);
             }
