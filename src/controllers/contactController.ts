@@ -87,8 +87,21 @@ export const contactController = async (
 const consolidateContacts = async (primaryContact : Model<any,any>) => {
     try{
         const secondaryContacts = await findSecondaryContactsByPrimary(primaryContact.dataValues.id);
-        const emails = [primaryContact.dataValues.email , ...secondaryContacts.filter(contact => contact.dataValues.email!== null)];
-        const phoneNumbers = [primaryContact.dataValues.phoneNumber , ...secondaryContacts.filter(contact => contact.dataValues.phoneNumber!== null)];
+        
+        const emails = [
+            primaryContact.dataValues.email,
+            ...secondaryContacts
+                .filter((contact) => contact.dataValues.email !== null)
+                .map((contact) => contact.dataValues.email),
+        ];
+
+        const phoneNumbers = [
+            primaryContact.dataValues.phoneNumber,
+            ...secondaryContacts
+                .filter((contact) => contact.dataValues.phoneNumber !== null)
+                .map((contact) => contact.dataValues.phoneNumber),
+        ];
+
         const secondaryContactIds = secondaryContacts.map(contact => contact.dataValues.id);
 
         return {
